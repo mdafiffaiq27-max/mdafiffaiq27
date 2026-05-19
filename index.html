@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malaysian Padi Growth Rate & Food Security Analytics</title>
+    <!-- Tailwind CSS for sleek UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for smooth data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header Section -->
+    <header class="bg-emerald-700 text-white py-6 px-4 shadow-md">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="text-xs font-bold tracking-widest uppercase bg-emerald-900 text-emerald-300 px-3 py-1 rounded-full">SFM: Food Security Specialization</span>
+                <h1 class="text-3xl font-extrabold mt-1">Calculus in Agro-Bioscience: Padi Growth Dynamics</h1>
+            </div>
+            <div class="text-right md:max-w-xs">
+                <p class="text-xs text-emerald-200">Target Crop: <span class="font-semibold text-white">Oryza sativa (MR219 Variety)</span></p>
+                <p class="text-xs text-emerald-200">Data Framework: <span class="font-semibold text-white">MARDI Rice Knowledge Bank</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left Column: Problem Explanation & Math -->
+        <div class="lg:col-span-1 flex flex-col gap-6">
+            
+            <!-- Bioscience Scenario -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <h2 class="text-xl font-bold text-emerald-800 mb-2">🌾 The Bioscience Problem</h2>
+                <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                    To guarantee national rice self-sufficiency (SSL) in Malaysia, agronomists must track crop vitality to optimize fertilizer intervention windows. 
+                </p>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    While cumulative crop height shows final progress, the <strong>rate of change (the derivative)</strong> tells us precisely when the plant is in its peak vegetative surge. Missing this window compromises panicle development and ultimate grain yield.
+                </p>
+            </div>
+
+            <!-- Mathematical Framework -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <h2 class="text-xl font-bold text-slate-800 mb-3">🧮 Mathematical Modeling</h2>
+                <p class="text-xs text-slate-500 mb-4">Based on empirical growth data spanning a standard 100-day monitoring cycle post-transplanting:</p>
+                
+                <div class="space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                    <div>
+                        <span class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Growth Function (Height)</span>
+                        <code class="text-sm font-mono text-indigo-700 block mt-1 bg-white p-2 rounded shadow-inner">f(x) = -0.0002x³ + 0.027x² + 0.2x + 12</code>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Where x = Days After Transplanting (DAT), f(x) = Height in cm</span>
+                    </div>
+                    <hr class="border-slate-200">
+                    <div>
+                        <span class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">First Derivative (Growth Rate)</span>
+                        <code class="text-sm font-mono text-emerald-700 block mt-1 bg-white p-2 rounded shadow-inner">f'(x) = -0.0006x² + 0.054x + 0.2</code>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Calculates instantaneous growth rate in cm/day</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Interactive Graph & Live Feedback -->
+        <div class="lg:col-span-2 flex flex-col gap-4">
+            
+            <!-- Graph Card -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex-grow flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">MR219 Growth Curve Analysis</h2>
+                        <p class="text-xs text-slate-500">Click anywhere on the curve to inspect calculus in action.</p>
+                    </div>
+                    <span class="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md animate-pulse">
+                        💡 Click Graph Points Below
+                    </span>
+                </div>
+                
+                <!-- Chart Container -->
+                <div class="relative min-h-[300px] flex-grow">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Dynamic Calculus Output Panel -->
+            <div id="inspectorPanel" class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white rounded-xl p-5 shadow-lg transition-all duration-300 transform scale-100 opacity-90">
+                <div id="welcomeInstructions">
+                    <p class="text-center text-sm font-medium text-emerald-100">
+                        📍 Click on a data point on the graph above to compute the plant's instantaneous growth velocity ($f'(x)$) for that specific day!
+                    </p>
+                </div>
+                <div id="realtimeMetrics" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <div class="border-r border-teal-700/50 pr-4">
+                        <span class="block text-xs text-teal-300 font-semibold tracking-wider uppercase">Timeline Position</span>
+                        <h3 class="text-2xl font-black mt-1" id="statDay">Day --</h3>
+                        <span class="text-xs text-teal-200/70 block" id="statPhase">Phase unknown</span>
+                    </div>
+                    <div class="border-r border-teal-700/50 px-4">
+                        <span class="block text-xs text-teal-300 font-semibold tracking-wider uppercase">Crop Physical Height [ f(x) ]</span>
+                        <h3 class="text-2xl font-bold mt-1 text-teal-100" id="statHeight">-- cm</h3>
+                    </div>
+                    <div class="pl-4">
+                        <span class="block text-xs text-amber-300 font-semibold tracking-wider uppercase">Calculated Growth Speed [ f'(x) ]</span>
+                        <h3 class="text-2xl font-black mt-1 text-amber-300" id="statDerivative">-- cm/day</h3>
+                    </div>
+                    <div class="col-span-1 md:col-span-3 mt-3 pt-3 border-t border-teal-700/40">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-300 block mb-1">👩‍🌾 Food Security Layman Insight:</span>
+                        <p class="text-sm text-emerald-50 leading-relaxed" id="statInsight">Select a point to unpack agronomic meaning.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-4 text-center text-xs mt-auto border-t border-slate-800">
+        <p>© 2026 Malaysia Food Security Agro-Analytics Sandbox | Empowering Sustainable Cultivation via Applied Mathematics</p>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // Generate realistic 100-day sample data points using our formulas
+        const labels = [];
+        const heightData = [];
+        const derivativeData = [];
+
+        for (let x = 0; x <= 100; x += 5) {
+            labels.push(x);
+            // f(x) = -0.0002x^3 + 0.027x^2 + 0.2x + 12
+            let fx = (-0.0002 * Math.pow(x, 3)) + (0.027 * Math.pow(x, 2)) + (0.2 * x) + 12;
+            heightData.push(parseFloat(fx.toFixed(2)));
+            
+            // f'(x) = -0.0006x^2 + 0.054x + 0.2
+            let dfx = (-0.0006 * Math.pow(x, 2)) + (0.054 * x) + 0.2;
+            derivativeData.push(parseFloat(dfx.toFixed(3)));
+        }
+
+        // Setup Chart.js
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        const growthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Padi Cumulative Height (cm)',
+                    data: heightData,
+                    borderColor: '#059669', // Tailwind emerald-600
+                    backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3,
+                    pointBackgroundColor: '#047857',
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#f59e0b' // Highlight to amber-500 on hover
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Days After Transplanting (DAT)',
+                            font: { weight: 'bold' }
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Height (cm)',
+                            font: { weight: 'bold' }
+                        },
+                        min: 0,
+                        max: 120
+                    }
+                },
+                // Trigger dynamic calculus readout when user clicks anywhere on graph line
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const targetDay = labels[index];
+                        const targetHeight = heightData[index];
+                        const targetDerivative = derivativeData[index];
+                        
+                        updateCalculusDisplay(targetDay, targetHeight, targetDerivative);
+                    }
+                }
+            }
+        });
+
+        // Compute layman explanations based on agronomic growth stages of Malaysian Padi
+        function updateCalculusDisplay(day, height, derivative) {
+            // UI Component visibility swap
+            document.getElementById('welcomeInstructions').classList.add('hidden');
+            document.getElementById('realtimeMetrics').classList.remove('hidden');
+            
+            // Inject calculated values
+            document.getElementById('statDay').innerText = `Day ${day} DAT`;
+            document.getElementById('statHeight').innerText = `${height} cm`;
+            document.getElementById('statDerivative').innerText = `${derivative} cm/day`;
+
+            let phaseStr = "";
+            let insightStr = "";
+
+            if (day <= 25) {
+                phaseStr = "Early Tillering Stage";
+                insightStr = `The crop is prioritizing root anchoring and shoots. A positive derivative of ${derivative} cm/day shows healthy adjustments. Fertilizer applied now sets up infrastructure for future crop performance.`;
+            } else if (day > 25 && day <= 60) {
+                phaseStr = "Active Panicle Initiation Phase";
+                insightStr = `Boom season! At ${derivative} cm/day, the crop is hitting peak vertical expansion. High velocity means high metabolism. From a Food Security standpoint, ensuring continuous water and Nitrogen/Urea application here is paramount to safeguard maximum yield output.`;
+            } else if (day > 60 && day <= 85) {
+                phaseStr = "Flowering & Heading Phase";
+                insightStr = `Notice how the derivative drops down to ${derivative} cm/day? Vertical expansion slows down drastically because the plant has shifted its metabolic resources away from building height and toward grain formation.`;
+            } else {
+                phaseStr = "Grain Ripening / Senescence";
+                insightStr = `The growth velocity is near-zero or slightly negative (${derivative} cm/day) because the plant structure has matured completely and stems bend downward under the physical weight of heavy, golden rice panicles. Ready for harvest calculation!`;
+            }
+
+            document.getElementById('statPhase').innerText = phaseStr;
+            document.getElementById('statInsight').innerText = insightStr;
+
+            // Simple micro-interaction pop effect on panel update
+            const panel = document.getElementById('inspectorPanel');
+            panel.classList.remove('scale-100');
+            panel.classList.add('scale-[1.01]');
+            setTimeout(() => panel.classList.remove('scale-[1.01]'), 150);
+        }
+    </script>
+</body>
+</html>
